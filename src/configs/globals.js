@@ -1,0 +1,9 @@
+const SALT = 12;
+const ARTICLE_GLOBALS = {
+	MIN_TITLE_CHARS: 8,
+	MAX_TITLE_CHARS: 30,
+	MIN_BODY_CHARS: 8,
+	MAX_BODY_CHARS: 300,
+};
+
+module.exports = { SALT, ARTICLE_GLOBALS };

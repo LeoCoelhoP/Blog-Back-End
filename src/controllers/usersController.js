@@ -1,4 +1,3 @@
-const express = require('express');
 const bcrypt = require('bcrypt');
 const {
 	emailValidator,
@@ -7,6 +6,8 @@ const {
 	registerFieldsValidator,
 } = require('../helpers/validators');
 const Users = require('../models/usersModel');
+const { SALT } = require('../configs/globals');
+const { registerErrors } = require('../configs/errorMessages');
 
 async function registerUser(req, res) {
 	try {
@@ -17,28 +18,29 @@ async function registerUser(req, res) {
 			password,
 		);
 		if (!isRegisterFieldsFullFilled.result)
-			return res.status(400).json({ erorr: isRegisterFieldsFullFilled.error });
+			return res.status(400).json({
+				erorr: registerErrors.usernameError.isRegisterFieldsFullFilled.error,
+			});
 
 		const isValidEmail = await emailValidator(email);
 		if (!isValidEmail.result)
 			return res.status(400).json({
-				error: isValidEmail.error,
+				error: registerErrors.emailError.isValidEmail.error,
 			});
 		const isValidUsername = await usernameValidator(username);
 		if (!isValidUsername.result)
 			return res.status(400).json({
-				error: isValidUsername.error,
+				error: registerErrors.usernameError.isValidUsername.error,
 			});
 
 		const isValidPassword = await passwordValidator(password);
 		console.log(isValidPassword);
 		if (!isValidPassword.result)
 			return res.status(400).json({
-				error: isValidPassword.error,
+				error: registerErrors.passwordError.isValidPassword.error,
 			});
 
-		const hashedPassword = await bcrypt.hash(password, 12);
-		console.log(hashedPassword);
+		const hashedPassword = await bcrypt.hash(password, SALT);
 		const newUser = new Users({ email, username, password: hashedPassword });
 
 		await newUser.save();
