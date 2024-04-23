@@ -9,7 +9,8 @@ const { passwordRegex, emailRegex } = require('../configs/validatorsREGEX');
 const Users = require('../models/usersModel');
 
 async function registerFieldsValidator(email, username, password) {
-	if (!email) return { result: false, error: emailError.noEmail };
+	if (!email)
+		return { result: false, error: registerErrors.emailError.noEmail };
 	if (!username)
 		return { result: false, error: registerErrors.usernameError.noUsername };
 	if (!password)

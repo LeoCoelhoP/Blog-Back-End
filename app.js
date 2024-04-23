@@ -8,6 +8,9 @@ const mongoose = require('mongoose');
 
 const indexRouter = require('./src/routes/articles');
 const usersRouter = require('./src/routes/users');
+const authRouter = require('./src/routes/auth');
+const passport = require('passport');
+require('./src/configs/passport');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api/auth', authRouter);
 app.use('/api/articles', indexRouter);
 app.use('/api/users', usersRouter);
 

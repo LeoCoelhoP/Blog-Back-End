@@ -7,7 +7,7 @@ const {
 } = require('../helpers/validators');
 const Users = require('../models/usersModel');
 const { SALT } = require('../configs/globals');
-const { registerErrors } = require('../configs/errorMessages');
+const jwt = require('jsonwebtoken');
 
 async function registerUser(req, res) {
 	try {
@@ -19,25 +19,25 @@ async function registerUser(req, res) {
 		);
 		if (!isRegisterFieldsFullFilled.result)
 			return res.status(400).json({
-				erorr: registerErrors.usernameError.isRegisterFieldsFullFilled.error,
+				erorr: isRegisterFieldsFullFilled.error,
 			});
 
 		const isValidEmail = await emailValidator(email);
 		if (!isValidEmail.result)
 			return res.status(400).json({
-				error: registerErrors.emailError.isValidEmail.error,
+				error: isValidEmail.error,
 			});
 		const isValidUsername = await usernameValidator(username);
 		if (!isValidUsername.result)
 			return res.status(400).json({
-				error: registerErrors.usernameError.isValidUsername.error,
+				error: isValidUsername.error,
 			});
 
 		const isValidPassword = await passwordValidator(password);
 		console.log(isValidPassword);
 		if (!isValidPassword.result)
 			return res.status(400).json({
-				error: registerErrors.passwordError.isValidPassword.error,
+				error: isValidPassword.error,
 			});
 
 		const hashedPassword = await bcrypt.hash(password, SALT);
@@ -52,7 +52,6 @@ async function registerUser(req, res) {
 
 async function loginUser(req, res) {
 	const { username, password } = req.body;
-
 	const user = await Users.findOne({ username });
 	if (!user) return res.status(401).json({ error: 'Invalid username.' });
 
@@ -60,6 +59,7 @@ async function loginUser(req, res) {
 	if (!isAuthorized)
 		return res.status(401).json({ error: 'Invalid password.' });
 
-	return res.json({ user });
+	const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+	return res.json({ token });
 }
 module.exports = { registerUser, loginUser };
