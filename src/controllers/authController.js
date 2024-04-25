@@ -51,8 +51,10 @@ async function registerUser(req, res) {
 }
 
 async function loginUser(req, res) {
-	const { username, password } = req.body;
-	const user = await Users.findOne({ username });
+	const { email, password } = req.body;
+	console.log(email, password);
+	const user = await Users.findOne({ email });
+	console.log(user);
 	if (!user) return res.status(401).json({ error: 'Invalid username.' });
 
 	const isAuthorized = await bcrypt.compare(password, user.password);
@@ -60,6 +62,26 @@ async function loginUser(req, res) {
 		return res.status(401).json({ error: 'Invalid password.' });
 
 	const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-	return res.json({ token });
+	res.cookie('token', token, {
+		maxAge: 900000,
+		httpOnly: true,
+		secure: true,
+	});
+	return res.json({ user });
 }
-module.exports = { registerUser, loginUser };
+async function logoutUser(req, res) {
+	res.cookie('token', '', { maxAge: 0 });
+	res.json({ message: 'Logged out! ' });
+}
+
+async function getProfile(req, res) {
+	const { token } = req.cookies;
+	if (!token) return res.json(null);
+
+	jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
+		if (err) res.cookie('token', null, { sameSite: true, httpOnly: true });
+		const data = await Users.findOne({ _id: user.id });
+		res.json(data.username);
+	});
+}
+module.exports = { registerUser, loginUser, logoutUser, getProfile };

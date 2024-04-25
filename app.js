@@ -1,4 +1,5 @@
 const dotenv = require('dotenv');
+const cors = require('cors');
 
 const express = require('express');
 const path = require('path');
@@ -21,6 +22,14 @@ mongoose
 	})
 	.then(() => console.log('Database Connected.'))
 	.catch((err) => console.error(err));
+
+app.disable('etag');
+app.use(
+	cors({
+		credentials: true,
+		origin: ['http://localhost:5173', 'http://192.168.0.102:5173'],
+	}),
+);
 
 app.use(logger('dev'));
 app.use(express.json());

@@ -10,4 +10,12 @@ router.post('/login', async function (req, res, next) {
 	await auth.loginUser(req, res);
 });
 
+router.post('/logout', async function (req, res, next) {
+	await auth.logoutUser(req, res);
+});
+
+router.get('/get-profile', async function (req, res, next) {
+	await auth.getProfile(req, res);
+});
+
 module.exports = router;
