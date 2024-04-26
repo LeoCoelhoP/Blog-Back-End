@@ -3,12 +3,19 @@ const {
 	createArticle,
 	getAllArticles,
 	getArticle,
-  deleteArticle,
+	deleteArticle,
 } = require('../controllers/articlesController.');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
 	const articles = await getAllArticles();
+	return res.json(articles);
+});
+
+router.post('/search/', async (req, res) => {
+	const { query } = req.body;
+
+	const articles = await getAllArticles(query);
 	return res.json(articles);
 });
 router.post('/', async (req, res) => {

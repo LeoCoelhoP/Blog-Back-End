@@ -28,6 +28,7 @@ async function registerUser(req, res) {
 				error: isValidEmail.error,
 			});
 		const isValidUsername = await usernameValidator(username);
+		console.log(isValidUsername);
 		if (!isValidUsername.result)
 			return res.status(400).json({
 				error: isValidUsername.error,
@@ -52,7 +53,6 @@ async function registerUser(req, res) {
 
 async function loginUser(req, res) {
 	const { email, password } = req.body;
-	console.log(email, password);
 	const user = await Users.findOne({ email });
 	console.log(user);
 	if (!user) return res.status(401).json({ error: 'Invalid username.' });
@@ -80,8 +80,14 @@ async function getProfile(req, res) {
 
 	jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
 		if (err) res.cookie('token', null, { sameSite: true, httpOnly: true });
-		const data = await Users.findOne({ _id: user.id });
-		res.json(data.username);
+		try {
+			const data = await Users.findOne({ _id: user.id }).select(
+				'-password -email',
+			);
+			return res.json(data);
+		} catch (err) {
+			if (err) return res.json(err);
+		}
 	});
 }
 module.exports = { registerUser, loginUser, logoutUser, getProfile };

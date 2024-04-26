@@ -21,11 +21,21 @@ async function createArticle(req, res) {
 	}
 }
 
-async function getAllArticles() {
-	const articles = await Articles.find().populate({
-		path: 'author',
-		select: 'username isAdmin -_id',
-	});
+async function getAllArticles(query) {
+	let articles;
+	if (query) {
+		articles = await Articles.find({
+			title: { $regex: query, $options: 'i' },
+		}).populate({
+			path: 'author',
+			select: 'username isAdmin -_id',
+		});
+	} else {
+		articles = await Articles.find().populate({
+			path: 'author',
+			select: 'username isAdmin -_id',
+		});
+	}
 	return articles;
 }
 
@@ -41,4 +51,9 @@ async function deleteArticle(id) {
 	const deletedArticle = await Articles.deleteOne({ _id: id });
 	return deletedArticle;
 }
-module.exports = { createArticle, getAllArticles, getArticle, deleteArticle };
+module.exports = {
+	createArticle,
+	getAllArticles,
+	getArticle,
+	deleteArticle,
+};
