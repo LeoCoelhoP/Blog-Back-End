@@ -7,15 +7,16 @@ async function createArticle(req, res) {
 		authorID,
 		title,
 		body,
-		images,
 	);
 	if (!isCreateFieldsValid.result)
 		return res.status(400).json({ error: isCreateFieldsValid.error });
 
 	try {
-		const newArticle = new Articles({ author: authorID, title, body });
+		const newArticle = new Articles({ author: authorID, title, body, images });
 		await newArticle.save();
-		return newArticle;
+		console.log(newArticle);
+		console.log('article saved');
+		res.json(newArticle);
 	} catch (err) {
 		return res.json({ error: err.message });
 	}
@@ -40,11 +41,27 @@ async function getAllArticles(query) {
 }
 
 async function getArticle(id) {
-	const article = await Articles.findOne({ _id: id }).populate({
-		path: 'author',
-		select: 'username isAdmin -_id',
-	});
-	return article;
+	console.log(id);
+	try {
+		const article = await Articles.findOne({ _id: id })
+			.populate([
+				{
+					path: 'author',
+					select: 'username isAdmin -_id',
+				},
+				{
+					path: 'comments',
+					pouplate: {
+						path: 'author',
+					},
+				},
+			])
+			.exec();
+
+		return article;
+	} catch (err) {
+		console.log(err);
+	}
 }
 
 async function deleteArticle(id) {

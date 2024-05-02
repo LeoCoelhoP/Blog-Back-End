@@ -1,6 +1,8 @@
 const { mongoose } = require('mongoose');
 
 const usersSchema = new mongoose.Schema({
+	isVerified: { type: Boolean, default: false },
+	emailToken: { type: String },
 	isAuthor: { type: Boolean, default: false },
 	isAdmin: { type: Boolean, default: false },
 	email: {
@@ -13,7 +15,8 @@ const usersSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	articlesLiked: { type: mongoose.Schema.Types.ObjectId, ref: 'Articles' },
+	articlesLiked: { type: Array, default: [] },
+	articlesBookmarked: { type: Array, default: [] },
 });
 
 module.exports = mongoose.model('Users', usersSchema);

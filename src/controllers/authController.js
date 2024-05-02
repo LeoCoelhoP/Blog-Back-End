@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+
 const {
 	emailValidator,
 	passwordValidator,
@@ -8,6 +10,11 @@ const {
 const Users = require('../models/usersModel');
 const { SALT } = require('../configs/globals');
 const jwt = require('jsonwebtoken');
+const { sendVerificationMail } = require('../helpers/sendVerificationMail');
+
+async function createToken(_id) {
+	return jwt.sign({ id: _id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+}
 
 async function registerUser(req, res) {
 	try {
@@ -42,26 +49,66 @@ async function registerUser(req, res) {
 			});
 
 		const hashedPassword = await bcrypt.hash(password, SALT);
-		const newUser = new Users({ email, username, password: hashedPassword });
+		const emailToken = crypto.randomBytes(64).toString('hex');
+		const newUser = new Users({
+			email,
+			username,
+			password: hashedPassword,
+			emailToken,
+		});
 
 		await newUser.save();
+
+		sendVerificationMail(newUser);
+
 		return res.json(newUser);
 	} catch (err) {
 		console.error(err);
 	}
 }
 
+async function verifyEmail(req, res) {
+	try {
+		const emailToken = req.body.emailToken;
+
+		if (!emailToken) return res.status(404).json('Email token not found...');
+
+		const user = await Users.findOne({ emailToken });
+
+		if (user) {
+			user.emailToken = null;
+			user.isVerified = true;
+			await user.save();
+
+			const token = createToken(user._id);
+
+			res.status(200).json({
+				...user,
+				token,
+				isVerified: user?.isVerified,
+			});
+		} else res.status(404).json('Email verification failed, invalid token!');
+	} catch (err) {
+		console.error(err);
+		res.status(500).json(error.message);
+	}
+}
+
 async function loginUser(req, res) {
 	const { email, password } = req.body;
 	const user = await Users.findOne({ email });
-	console.log(user);
 	if (!user) return res.status(401).json({ error: 'Invalid username.' });
+	if (!user.isVerified)
+		return res.status(403).json({
+			error:
+				'You must verify your email. Please, do not forget to check the spams.',
+		});
 
 	const isAuthorized = await bcrypt.compare(password, user.password);
 	if (!isAuthorized)
 		return res.status(401).json({ error: 'Invalid password.' });
 
-	const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+	const token = await createToken(user._id);
 	res.cookie('token', token, {
 		maxAge: 900000,
 		httpOnly: true,
@@ -90,4 +137,10 @@ async function getProfile(req, res) {
 		}
 	});
 }
-module.exports = { registerUser, loginUser, logoutUser, getProfile };
+module.exports = {
+	registerUser,
+	loginUser,
+	logoutUser,
+	getProfile,
+	verifyEmail,
+};

@@ -48,15 +48,14 @@ async function passwordValidator(password) {
 	return { result: true };
 }
 
-async function articleFieldsValidator(authorID, title, body, images) {
+async function articleFieldsValidator(authorID, title, body) {
 	if (!authorID)
 		return { result: false, error: createArticleErrors.authorErrors.noAuthor };
 	if (!title)
 		return { result: false, error: createArticleErrors.titleErros.noTitle };
 	if (!body)
 		return { result: false, error: createArticleErrors.bodyErrors.noBody };
-	if (!images)
-		return { result: false, error: createArticleErrors.imagesErrors.noImage };
+
 	return { result: true };
 }
 

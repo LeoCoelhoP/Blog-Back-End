@@ -18,4 +18,6 @@ router.get('/get-profile', async function (req, res, next) {
 	await auth.getProfile(req, res);
 });
 
+router.post('/verify-email', auth.verifyEmail);
+
 module.exports = router;
