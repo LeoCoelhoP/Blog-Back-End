@@ -14,9 +14,7 @@ async function createArticle(req, res) {
 	try {
 		const newArticle = new Articles({ author: authorID, title, body, images });
 		await newArticle.save();
-		console.log(newArticle);
-		console.log('article saved');
-		res.json(newArticle);
+		res.json({ message: 'Article successfully created!', data: newArticle });
 	} catch (err) {
 		return res.json({ error: err.message });
 	}
@@ -27,21 +25,25 @@ async function getAllArticles(query) {
 	if (query) {
 		articles = await Articles.find({
 			title: { $regex: query, $options: 'i' },
-		}).populate({
-			path: 'author',
-			select: 'username isAdmin -_id',
-		});
+		})
+			.populate({
+				path: 'author',
+				select: 'username isAdmin -_id',
+			})
+			.sort({ updatedAt: -1 });
 	} else {
-		articles = await Articles.find().populate({
-			path: 'author',
-			select: 'username isAdmin -_id',
-		});
+		articles = await Articles.find()
+			.populate({
+				path: 'author',
+				select: 'username isAdmin -_id',
+			})
+			.sort({ updatedAt: -1 });
 	}
 	return articles;
 }
 
 async function getArticle(id) {
-	console.log(id);
+	const sortOptions = { sort: { createdAt: -1 } };
 	try {
 		const article = await Articles.findOne({ _id: id })
 			.populate([
@@ -51,6 +53,7 @@ async function getArticle(id) {
 				},
 				{
 					path: 'comments',
+					options: sortOptions,
 					pouplate: {
 						path: 'author',
 					},
@@ -60,7 +63,7 @@ async function getArticle(id) {
 
 		return article;
 	} catch (err) {
-		console.log(err);
+		return { error: 'Article not found.' };
 	}
 }
 

@@ -3,8 +3,7 @@ const Users = require('../models/usersModel');
 const Articles = require('../models/articlesModel');
 async function likeAction(userID, articleID) {
 	const article = await Articles.findOne({ _id: articleID });
-	console.log(article.likes);
-
+	console.log(articleID);
 	const user = await Users.findOne({ _id: userID });
 	const result = user.articlesLiked.filter((article) => article === articleID);
 	let updatedUser;

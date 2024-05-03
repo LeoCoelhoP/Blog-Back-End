@@ -12,7 +12,8 @@ const {
 // });
 router.get('/:id/articles', async function (req, res, next) {
 	const { id } = req.params;
-	const articles = await Articles.find({ author: id });
+	const articles = await Articles.find({ author: id }).sort({ updatedAt: -1 });
+	console.log(articles);
 	return res.json(articles);
 });
 
@@ -35,4 +36,10 @@ router.post('/bookmark', async function (req, res) {
 	res.json(data);
 });
 
+router.post('/isAdmin', async function (req, res) {
+	const { username } = req.body;
+	const user = await Users.findOne({ username });
+	console.log(user.isAdmin);
+	return res.json(user.isAdmin);
+});
 module.exports = router;

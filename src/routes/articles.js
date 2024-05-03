@@ -28,8 +28,18 @@ router.get('/:id', async (req, res) => {
 	const article = await getArticle(req.params.id);
 	return res.json(article);
 });
-router.put('/:id', (req, res) => {
-	res.json(`update Article of id ${req.params.id}`);
+router.put('/:id', async (req, res) => {
+	const article = await Articles.findOne({ _id: req.params.id });
+	const { title, body, images } = req.body;
+
+	article.title = title;
+	article.body = body;
+	article.images = images;
+
+	await article.save();
+	return  res.json({
+		message: `Article ${req.params.id} successfully updated!`,
+	});
 });
 router.delete('/:id', async (req, res) => {
 	const deletedArticle = await deleteArticle(req.params.id);
