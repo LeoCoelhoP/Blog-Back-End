@@ -36,7 +36,7 @@ app.disable('etag');
 app.use(
 	cors({
 		credentials: true,
-		origin: ['https://blog-front-end-u7fb.onrender.com/'],
+		origin: ['*'],
 	}),
 );
 // Middleware to parse incoming JSON and URL-encoded requests
