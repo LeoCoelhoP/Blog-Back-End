@@ -36,7 +36,7 @@ app.disable('etag');
 app.use(
 	cors({
 		credentials: true,
-		origin: ['http://localhost:5173', 'http://192.168.0.102:5173'],
+		origin: ['https://blog-front-end-u7fb.onrender.com/'],
 	}),
 );
 // Middleware to parse incoming JSON and URL-encoded requests
