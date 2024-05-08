@@ -1,52 +1,20 @@
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
-const {
-	emailValidator,
-	passwordValidator,
-	usernameValidator,
-	registerFieldsValidator,
-} = require('../helpers/validators');
 const Users = require('../models/usersModel');
-const { SALT } = require('../configs/globals');
-const jwt = require('jsonwebtoken');
-const { sendVerificationMail } = require('../helpers/sendVerificationMail');
 
-async function createToken(_id) {
-	return jwt.sign({ id: _id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-}
+const { SALT } = require('../configs/globals');
+const messages = require('../configs/Messages');
+const { authController, common } = require('../configs/errorMessages');
+
+const createToken = require('../helpers/createToken');
+const sendVerificationPassword = require('../helpers/sendVerificationPassword');
+const sendVerificationMail = require('../helpers/sendVerificationMail');
 
 async function registerUser(req, res) {
 	try {
 		const { email, username, password } = req.body;
-		const isRegisterFieldsFullFilled = await registerFieldsValidator(
-			email,
-			username,
-			password,
-		);
-		if (!isRegisterFieldsFullFilled.result)
-			return res.status(400).json({
-				erorr: isRegisterFieldsFullFilled.error,
-			});
-
-		const isValidEmail = await emailValidator(email);
-		if (!isValidEmail.result)
-			return res.status(400).json({
-				error: isValidEmail.error,
-			});
-		const isValidUsername = await usernameValidator(username);
-		console.log(isValidUsername);
-		if (!isValidUsername.result)
-			return res.status(400).json({
-				error: isValidUsername.error,
-			});
-
-		const isValidPassword = await passwordValidator(password);
-		console.log(isValidPassword);
-		if (!isValidPassword.result)
-			return res.status(400).json({
-				error: isValidPassword.error,
-			});
 
 		const hashedPassword = await bcrypt.hash(password, SALT);
 		const emailToken = crypto.randomBytes(64).toString('hex');
@@ -56,91 +24,187 @@ async function registerUser(req, res) {
 			password: hashedPassword,
 			emailToken,
 		});
-
 		await newUser.save();
 
 		sendVerificationMail(newUser);
-
-		return res.json(newUser);
+		return res.status(200).json(messages.authController.register.success);
 	} catch (err) {
-		console.error(err);
+		return res.status(500).json({ error: authController.registerUser.error });
+	}
+}
+
+async function passwordRecovery(req, res) {
+	try {
+		const { email } = req.body;
+		if (!email) return res.status(400).json({ error: common.noEmail });
+
+		const user = await Users.findOne({ email });
+		if (!user) return res.status(404).json({ error: common.noUser });
+
+		const emailToken = crypto.randomBytes(64).toString('hex');
+		user.emailToken = emailToken;
+
+		await user.save();
+		sendVerificationPassword(user, res);
+	} catch {
+		return res
+			.status(500)
+			.json({ error: authController.passwordRecovery.error });
+	}
+}
+
+async function updatePassword(req, res) {
+	try {
+		const { password, passwordConfirmation, token } = req.body;
+		if (!password || !passwordConfirmation)
+			return res.status(400).json({
+				error: authController.updatePassword.notFilled,
+			});
+
+		const user = await Users.findOne({ emailToken: token });
+		if (!user)
+			return res.status(401).json({
+				error: common.tokenExpired,
+			});
+
+		user.emailToken = null;
+		const hashedPassword = await bcrypt.hash(password, SALT);
+		user.password = hashedPassword;
+		await user.save();
+
+		return res
+			.status(200)
+			.json({ message: messages.authController.updatePassword.success });
+	} catch {
+		return res.status(500).json({ error: authController.updatePassword.error });
 	}
 }
 
 async function verifyEmail(req, res) {
 	try {
 		const emailToken = req.body.emailToken;
-
-		if (!emailToken) return res.status(404).json('Email token not found...');
+		if (!emailToken)
+			return res
+				.status(400)
+				.json({ error: authController.verifyEmail.noToken });
 
 		const user = await Users.findOne({ emailToken });
+		if (!user) return res.status(401).json({ error: common.tokenExpired });
 
-		if (user) {
-			user.emailToken = null;
-			user.isVerified = true;
-			await user.save();
+		user.emailToken = null;
+		user.isVerified = true;
+		await user.save();
 
-			const token = createToken(user._id);
-
-			res.status(200).json({
-				...user,
-				token,
-				isVerified: user?.isVerified,
-			});
-		} else res.status(404).json('Email verification failed, invalid token!');
-	} catch (err) {
-		console.error(err);
-		res.status(500).json(error.message);
+		return res.status(200).json({
+			message: messages.authController.verifyEmail.success,
+		});
+	} catch {
+		res.status(500).json({ error: authController.verifyEmail.error });
 	}
 }
 
 async function loginUser(req, res) {
-	const { email, password } = req.body;
-	const user = await Users.findOne({ email });
-	if (!user) return res.status(401).json({ error: 'Invalid username.' });
-	if (!user.isVerified)
-		return res.status(403).json({
-			error:
-				'You must verify your email. Please, do not forget to check the spams.',
+	try {
+		const { email, password } = req.body;
+		if (!email) return res.status(400).json({ error: common.noEmail });
+		if (!password) return res.status(400).json({ error: common.noPassword });
+
+		const user = await Users.findOne({ email }).select('-email -emailToken');
+		if (!user) return res.status(401).json({ error: common.noUser });
+
+		if (!user.isVerified)
+			return res.status(403).json({
+				error: authController.loginUser.notVerified,
+			});
+
+		const isAuthorized = await bcrypt.compare(password, user.password);
+		if (!isAuthorized)
+			return res
+				.status(401)
+				.json({ error: authController.loginUser.invalidPassword });
+
+		const token = await createToken(user._id);
+		res.cookie('token', token, {
+			maxAge: 900000,
+			httpOnly: true,
+			secure: true,
 		});
-
-	const isAuthorized = await bcrypt.compare(password, user.password);
-	if (!isAuthorized)
-		return res.status(401).json({ error: 'Invalid password.' });
-
-	const token = await createToken(user._id);
-	res.cookie('token', token, {
-		maxAge: 900000,
-		httpOnly: true,
-		secure: true,
-	});
-	return res.json({ user });
+		user.password = null;
+		return res.status(200).json(user);
+	} catch {
+		res.status(500).json({ error: authController.loginUser.error });
+	}
 }
-async function logoutUser(req, res) {
-	res.cookie('token', '', { maxAge: 0 });
-	res.json({ message: 'Logged out! ' });
+
+function logoutUser(req, res) {
+	try {
+		return res
+			.cookie('token', '', { maxAge: 0 })
+			.json({ message: messages.authController.logoutUser.success });
+	} catch {
+		return res.status(500).json({ error: authController.logoutUser.error });
+	}
+}
+
+function verifyUser(req, res, next) {
+	try {
+		const token = req.cookies.token;
+		const userID = req.body.userID || req.body?.user?._id || req.body.authorID;
+		if (!token)
+			return res.status(401).json({ auth: false, message: common.noToken });
+
+		jwt.verify(token, process.env.JWT_SECRET, function (err, user) {
+			if (err)
+				return res
+					.status(500)
+					.json({ error: authController.verifyUser.noAuth });
+
+			if (user.id === userID) next();
+			else
+				return res
+					.status(500)
+					.json({ error: authController.verifyUser.noAuth });
+		});
+	} catch {
+		return res.status(500).json({ error: authController.verifyUser.error });
+	}
+}
+
+async function isDemoAdmin(req, res, next) {
+	const userID = req.body.userID || req.body?.user?._id || req.body.authorID;
+	const user = await Users.findOne({ _id: userID });
+
+	if (!user || user.username === 'DemoAdmin')
+		return res.status(401).json({ error: authController.demoAdmin.error });
+
+	next();
 }
 
 async function getProfile(req, res) {
-	const { token } = req.cookies;
-	if (!token) return res.json(null);
+	try {
+		const { token } = req.cookies;
+		if (!token) return;
 
-	jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
-		if (err) res.cookie('token', null, { sameSite: true, httpOnly: true });
-		try {
+		jwt.verify(token, process.env.JWT_SECRET, {}, async (err, user) => {
+			if (err) res.cookie('token', null, { sameSite: true, httpOnly: true });
 			const data = await Users.findOne({ _id: user.id }).select(
-				'-password -email',
+				'-password -email -emailToken',
 			);
-			return res.json(data);
-		} catch (err) {
-			if (err) return res.json(err);
-		}
-	});
+			return res.status(200).json(data);
+		});
+	} catch {
+		res.status(500).json({ error: authController.getProfile.error });
+	}
 }
+
 module.exports = {
-	registerUser,
+	getProfile,
 	loginUser,
 	logoutUser,
-	getProfile,
+	passwordRecovery,
+	registerUser,
+	updatePassword,
 	verifyEmail,
+	verifyUser,
+	isDemoAdmin,
 };

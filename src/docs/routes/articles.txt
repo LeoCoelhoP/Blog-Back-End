@@ -1,0 +1,16 @@
+articlesRoutes.js Documentation:
+
+Description: Defines routes for handling article-related operations.
+Dependencies: express, articlesController, articleFieldsValidator, verifyUser.
+Endpoints:
+1. GET / - Retrieve all articles.
+2. GET /:id - Retrieve an article by ID.
+3. POST / - Create an article.
+4. POST /:id/comment - Comment on an article.
+5. POST /:id/comment/delete - Delete a comment on an article.
+6. POST /likes - Get liked articles.
+7. POST /bookmarks - Get bookmarked articles.
+8. POST /search/ - Search articles.
+9. PUT /:id - Update an article by ID.
+10. DELETE /:id - Delete an article by ID.
+

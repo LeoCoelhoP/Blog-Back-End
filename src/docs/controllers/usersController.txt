@@ -1,0 +1,38 @@
+usersController.js Documentation:
+
+Controller functions for handling user-related operations.
+
+Function: getUserByID
+Description: Retrieves a user by their ID.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: Promise<void> A Promise representing the completion of the operation.
+
+Function: isAdmin
+Description: Checks if a user is an admin.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: Promise<void> A Promise representing the completion of the operation.
+
+Function: getUserArticles
+Description: Retrieves articles authored by a user.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: Promise<void> A Promise representing the completion of the operation.
+
+Function: likeAction
+Description: Handles user's like action on an article.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: Promise<void> A Promise representing the completion of the operation.
+
+Function: bookmarkAction
+Description: Handles user's bookmark action on an article.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: Promise<void> A Promise representing the completion of the operation.

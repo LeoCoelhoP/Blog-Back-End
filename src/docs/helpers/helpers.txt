@@ -1,0 +1,26 @@
+createMailTransporter Function Documentation:
+
+Description: Creates and configures an email transporter using nodemailer.
+Returns: Transporter object for sending emails.
+
+createToken Function Documentation:
+
+Description: Creates a JWT token for user authentication.
+Parameters:
+  - _id: User ID used to generate the token.
+Returns: JWT token string or an object containing an error message.
+
+sendVerificationMail Function Documentation:
+
+Description: Sends a verification email to the user for email verification.
+Parameters:
+  - user: User object containing email and emailToken.
+Returns: None.
+
+sendVerificationPassword Function Documentation:
+
+Description: Sends a verification email to the user for password recovery.
+Parameters:
+  - user: User object containing email and emailToken.
+  - res: Express response object.
+Returns: None. Sends JSON response indicating success or failure.

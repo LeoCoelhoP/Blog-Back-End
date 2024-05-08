@@ -1,0 +1,11 @@
+userRoutes.js Documentation:
+
+Description: Defines routes for handling user-related operations.
+Dependencies: express, usersController, likeAndBookmarkValidator, authController.
+Endpoints:
+1. GET /:id - Retrieve a user by ID.
+2. GET /:id/articles - Retrieve articles authored by a user.
+3. POST /isAdmin - Check if a user is an admin.
+4. POST /like - Perform like action on an article.
+5. POST /bookmark - Perform bookmark action on an article.
+

@@ -1,68 +1,96 @@
 const {
-	emailError,
-	passwordError,
-	usernameError,
 	registerErrors,
 	createArticleErrors,
+	usersController,
+	common,
 } = require('../configs/errorMessages');
 const { passwordRegex, emailRegex } = require('../configs/validatorsREGEX');
 const Users = require('../models/usersModel');
 
-async function registerFieldsValidator(email, username, password) {
-	if (!email)
-		return { result: false, error: registerErrors.emailError.noEmail };
-	if (!username)
-		return { result: false, error: registerErrors.usernameError.noUsername };
-	if (!password)
-		return { result: false, error: registerErrors.passwordError.noPassword };
-	return { result: true };
+function likeAndBookmarkValidator(req, res, next) {
+	const { userID, articleID, action } = req.body;
+
+	if (!userID)
+		return res
+			.status(401)
+			.res.json({ error: usersController.general.noUserID });
+	if (!articleID)
+		return res.status(401).json({ error: usersController.general.noArticle });
+	if (!action)
+		return res.status(400).json({
+			error: usersController.bookmarkAction.noAction,
+		});
+	next();
 }
 
-async function emailValidator(email) {
-	const emailTaken = await Users.findOne({ email });
-	if (emailTaken)
-		return { result: false, error: registerErrors.emailError.emailTaken };
+async function emailValidator(req, res, next) {
+	const email = req.body.email;
+	if (!email) return res.status(400).json({ error: common.noEmail });
+
+	const isEmailTaken = await Users.findOne({ email });
+	if (isEmailTaken)
+		return res
+			.status(400)
+			.json({ error: registerErrors.emailError.emailTaken });
 
 	const REGEX = emailRegex;
 	if (!REGEX.test(email))
-		return { result: false, error: registerErrors.emailError.invalidEmail };
-	return { result: true };
+		return res
+			.status(400)
+			.json({ error: registerErrors.emailError.invalidEmail });
+
+	next();
 }
 
-async function usernameValidator(username) {
+async function usernameValidator(req, res, next) {
+	const { username } = req.body;
+	if (!username) return res.status(400).json({ error: common.noUsername });
+
 	const usernameTaken = await Users.findOne({ username });
-	if (usernameTaken)
-		return { result: false, error: registerErrors.usernameError.usernameTaken };
 
-	return { result: true };
+	if (usernameTaken)
+		return res
+			.status(400)
+			.json({ error: registerErrors.usernameError.usernameTaken });
+
+	next();
 }
 
-async function passwordValidator(password) {
+function passwordValidator(req, res, next) {
+	const { password } = req.body;
+	if (!password) return res.status(400).json({ error: common.noPassword });
+
 	const REGEX = passwordRegex;
 	if (!REGEX.test(password))
-		return {
-			result: false,
-			error: registerErrors.passwordError.invalidPassword,
-		};
+		return res
+			.status(400)
+			.json({ error: registerErrors.passwordError.invalidPassword });
 
-	return { result: true };
+	next();
 }
 
-async function articleFieldsValidator(authorID, title, body) {
+function articleFieldsValidator(req, res, next) {
+	const { authorID, title, body } = req.body;
 	if (!authorID)
-		return { result: false, error: createArticleErrors.authorErrors.noAuthor };
+		return res
+			.status(400)
+			.json({ error: createArticleErrors.authorErrors.noAuthor });
 	if (!title)
-		return { result: false, error: createArticleErrors.titleErros.noTitle };
+		return res
+			.status(400)
+			.json({ error: createArticleErrors.titleErrors.noTitle });
 	if (!body)
-		return { result: false, error: createArticleErrors.bodyErrors.noBody };
+		return res
+			.status(400)
+			.json({ error: createArticleErrors.bodyErrors.noBody });
 
-	return { result: true };
+	next();
 }
 
 module.exports = {
-	registerFieldsValidator,
-	emailValidator,
-	usernameValidator,
-	passwordValidator,
 	articleFieldsValidator,
+	emailValidator,
+	likeAndBookmarkValidator,
+	passwordValidator,
+	usernameValidator,
 };

@@ -1,0 +1,73 @@
+articlesController.js Documentation:
+
+This file provides controllers for article-related operations.
+
+Function: createArticle
+Description: Creates a new article.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response indicating success or failure.
+
+Function: getLikedArticles
+Description: Retrieves articles liked by users.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response containing liked articles.
+
+Function: getBookmarkedArticles
+Description: Retrieves articles bookmarked by users.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response containing bookmarked articles.
+
+Function: getAllArticles
+Description: Retrieves all articles.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response containing all articles.
+
+Function: updateArticle
+Description: Updates an existing article.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response indicating success or failure.
+
+Function: getArticle
+Description: Retrieves an article by its ID.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response containing the article.
+
+Function: getArticleBySearch
+Description: Searches for articles based on a query.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response containing matching articles.
+
+Function: commentArticle
+Description: Adds a comment to an article.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response indicating success or failure.
+
+Function: deleteArticle
+Description: Deletes an article.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response indicating success or failure.
+
+Function: deleteArticleComment
+Description: Deletes a comment from an article.
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+Returns: JSON response indicating success or failure.

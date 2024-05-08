@@ -1,0 +1,60 @@
+authController.js Documentation:
+
+Authentication controller handling user registration, login, password recovery, verification, logout, and profile retrieval.
+
+Function: registerUser
+Description: Registers a new user.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response indicating success or failure.
+
+Function: passwordRecovery
+Description: Initiates the password recovery process.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response indicating success or failure.
+
+Function: updatePassword
+Description: Updates user's password.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response indicating success or failure.
+
+Function: verifyEmail
+Description: Verifies user's email.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response indicating success or failure.
+
+Function: loginUser
+Description: Logs in a user.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response indicating success or failure.
+
+Function: logoutUser
+Description: Logs out a user.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response indicating success or failure.
+
+Function: verifyUser
+Description: Middleware function to verify user authentication using JSON Web Tokens (JWT).
+Parameters:
+  - req: Express request object.
+  - res: Express response object.
+  - next: Express next function.
+Returns: void
+
+Function: getProfile
+Description: Retrieves user profile.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+Returns: JSON response containing user profile.

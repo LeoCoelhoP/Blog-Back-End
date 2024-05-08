@@ -1,0 +1,44 @@
+likeAndBookmarkValidator Middleware Documentation:
+
+Description: Validates user ID, article ID, and action for liking and bookmarking.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+  - next: The next middleware function.
+Returns: None.
+
+emailValidator Middleware Documentation:
+
+Description: Validates email format and uniqueness.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+  - next: The next middleware function.
+Returns: None.
+
+usernameValidator Middleware Documentation:
+
+Description: Validates username uniqueness.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+  - next: The next middleware function.
+Returns: None.
+
+passwordValidator Middleware Documentation:
+
+Description: Validates password format.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+  - next: The next middleware function.
+Returns: None.
+
+articleFieldsValidator Middleware Documentation:
+
+Description: Validates article fields.
+Parameters:
+  - req: The request object.
+  - res: The response object.
+  - next: The next middleware function.
+Returns: None.

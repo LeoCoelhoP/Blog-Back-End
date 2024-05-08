@@ -10,7 +10,7 @@ const commentSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	body: { type: String, required: true },
+	body: { type: String, required: true, maxlength: 90 },
 	createdAt: { type: Date, default: Date.now },
 });
 

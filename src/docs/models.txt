@@ -1,0 +1,33 @@
+articlesSchema Model Documentation:
+
+Description: Mongoose schema for storing articles.
+Fields:
+  - author: User ID of the article author.
+  - comments: Array of comment IDs associated with the article.
+  - updatedAt: Date when the article was last updated.
+  - likes: Number of likes for the article.
+  - title: Title of the article.
+  - body: Body/content of the article.
+  - images: URL or path to images associated with the article.
+
+commentSchema Model Documentation:
+
+Description: Mongoose schema for storing comments.
+Fields:
+  - article: Article ID associated with the comment.
+  - username: Username of the comment author.
+  - body: Body/content of the comment.
+  - createdAt: Date when the comment was created.
+
+usersSchema Model Documentation:
+
+Description: Mongoose schema for storing users.
+Fields:
+  - isVerified: Boolean indicating whether the user's email is verified.
+  - emailToken: Token used for email verification.
+  - isAdmin: Boolean indicating whether the user is an admin.
+  - email: Email address of the user (unique).
+  - username: Username of the user (unique, 6-14 characters).
+  - password: Password of the user (min length: 6 characters).
+  - articlesLiked: Array of article IDs liked by the user.
+  - articlesBookmarked: Array of article IDs bookmarked by the user.

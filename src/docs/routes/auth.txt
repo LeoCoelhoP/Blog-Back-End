@@ -1,0 +1,13 @@
+authRoutes.js Documentation:
+
+Description: Defines routes for handling user authentication related operations.
+Dependencies: express, authController, emailValidator, usernameValidator, passwordValidator.
+Endpoints:
+1. GET /get-profile - Retrieve user profile.
+2. POST /register - Register a new user.
+3. POST /verify-email - Verify user email.
+4. POST /login - Log in a user.
+5. POST /recover - Initiate password recovery.
+6. POST /logout - Log out a user.
+7. PUT /update-password - Update user password.
+

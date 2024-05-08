@@ -1,0 +1,16 @@
+File: passportConfig.js
+
+Description:
+This file sets up Passport.js authentication with JWT (JSON Web Tokens) strategy using `passport-jwt`. It configures Passport to authenticate users based on JWT tokens retrieved from the Authorization header in HTTP requests.
+
+Dependencies:
+- dotenv: To load environment variables from a .env file.
+- passport: Authentication middleware for Node.js.
+- passport-jwt: Passport strategy for authenticating with JWT.
+
+Usage:
+1. Import required modules.
+2. Configure JWT options including the method to extract JWT from the request and the secret key.
+3. Define Passport JWT strategy using `passport-jwt` module.
+4. Use the JWT strategy to authenticate users based on payload information.
+5. Export the configured Passport instance.
